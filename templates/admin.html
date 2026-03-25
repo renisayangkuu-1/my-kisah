@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Our Private World</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --primary: {{ theme.primary }};
+            --secondary: {{ theme.secondary }};
+        }
+    </style>
+</head>
+<body class="admin-page">
+    <header class="admin-header">
+        <h1>⚙️ Admin Panel</h1>
+        <a href="/home" class="back-btn">← Ke Website</a>
+    </header>
+    
+    <div class="admin-tabs">
+        <button class="tab-btn active" data-tab="gallery">📷 Foto</button>
+        <button class="tab-btn" data-tab="settings">⚙️ Pengaturan</button>
+        <button class="tab-btn" data-tab="theme">🎨 Tema</button>
+    </div>
+    
+    <div class="admin-content">
+        <!-- Gallery Tab -->
+        <div class="tab-content active" id="gallery">
+            <h2>📷 Kelola Galeri</h2>
+            <form action="/admin/gallery/add" method="POST" enctype="multipart/form-data" class="upload-form">
+                <input type="file" name="photo" accept="image/*" required>
+                <input type="text" name="caption" placeholder="Caption foto">
+                <input type="text" name="date" placeholder="Tanggal (contoh: 8 September 2024)">
+                <input type="text" name="location" placeholder="Lokasi">
+                <button type="submit">📤 Upload Foto</button>
+            </form>
+            
+            <div class="gallery-grid">
+                {% for photo in photos %}
+                <div class="gallery-item">
+                    <img src="{{ url_for('static', filename='uploads/' + photo.image) }}">
+                    <p>{{ photo.caption or 'Tidak ada caption' }}</p>
+                    <small>{{ photo.date or '' }}</small>
+                    <a href="/admin/gallery/delete/{{ photo.id }}" class="delete-btn" onclick="return confirm('Hapus foto ini?')">🗑️ Hapus</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Settings Tab -->
+        <div class="tab-content" id="settings">
+            <h2>⚙️ Pengaturan Website</h2>
+            <form action="/admin/settings" method="POST">
+                <div class="form-group">
+                    <label>PIN Login:</label>
+                    <input type="text" name="pin" value="{{ settings.get('pin', '090225') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Tanggal Pacaran (Love Start Date):</label>
+                    <input type="date" name="love_start_date" value="{{ settings.get('love_start_date', '2024-09-08') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Judul Website:</label>
+                    <input type="text" name="site_title" value="{{ settings.get('site_title', 'Our Private World ❤️') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Isi Surat Cinta:</label>
+                    <textarea name="letter_content" rows="6">{{ settings.get('letter_content', '') }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Pesan Rahasia:</label>
+                    <input type="text" name="secret_message" value="{{ settings.get('secret_message', '') }}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Lokasi (format: Nama::Cafe/Deskripsi::Emoji):</label>
+                    <textarea name="locations" rows="4">{{ settings.get('locations', '') }}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Chat History (format: pengirim|teks|jam):</label>
+                    <textarea name="chat_history" rows="4">{{ settings.get('chat_history', '') }}</textarea>
+                </div>
+                
+                <button type="submit" class="save-btn">💾 Simpan Pengaturan</button>
+            </form>
+        </div>
+        
+        <!-- Theme Tab -->
+        <div class="tab-content" id="theme">
+            <h2>🎨 Pengaturan Tampilan</h2>
+            <form action="/admin/settings" method="POST">
+                <div class="form-group">
+                    <label>Warna Utama (Primary):</label>
+                    <input type="color" name="theme_primary" value="{{ settings.get('theme_primary', '#ff6b9d') }}">
+                    <span>{{ settings.get('theme_primary', '#ff6b9d') }}</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Warna Sekunder (Secondary):</label>
+                    <input type="color" name="theme_secondary" value="{{ settings.get('theme_secondary', '#ffa3c4') }}">
+                    <span>{{ settings.get('theme_secondary', '#ffa3c4') }}</span>
+                </div>
+                
+                <input type="hidden" name="pin" value="{{ settings.get('pin', '090225') }}">
+                <input type="hidden" name="love_start_date" value="{{ settings.get('love_start_date', '2024-09-08') }}">
+                <input type="hidden" name="site_title" value="{{ settings.get('site_title', 'Our Private World ❤️') }}">
+                <input type="hidden" name="letter_content" value="{{ settings.get('letter_content', '') }}">
+                <input type="hidden" name="secret_message" value="{{ settings.get('secret_message', '') }}">
+                <input type="hidden" name="locations" value="{{ settings.get('locations', '') }}">
+                <input type="hidden" name="chat_history" value="{{ settings.get('chat_history', '') }}">
+                
+                <button type="submit" class="save-btn">💾 Simpan Tema</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

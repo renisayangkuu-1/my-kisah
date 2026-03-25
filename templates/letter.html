@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surat untuk Reni ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --primary: {{ theme.primary }};
+            --secondary: {{ theme.secondary }};
+        }
+    </style>
+</head>
+<body class="letter-page {{ time_period }}">
+    <nav>
+        <a href="/home">🏠 Home</a>
+    </nav>
+    
+    <main class="letter-main">
+        <div class="letter-card">
+            <div class="letter-header">
+                <h1>💕 Surat untuk Reni</h1>
+                <p>Dengan cinta, dari aku</p>
+            </div>
+            <div class="letter-body" id="letterContent">
+                {{ letter_content }}
+            </div>
+            <div class="letter-footer">
+                <p>Dengan seluruh cinta ku,</p>
+                <h2>❤️ Ubed</h2>
+            </div>
+        </div>
+    </main>
+    
+    <div class="back-link">
+        <a href="/home">← Kembali</a>
+    </div>
+</body>
+</html>

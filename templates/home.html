@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        :root {
+            --primary: {{ theme.primary }};
+            --secondary: {{ theme.secondary }};
+        }
+    </style>
+</head>
+<body class="home-page {{ time_period }}">
+    <div class="slideshow" id="slideshow">
+        {% if photos %}
+        {% for photo in photos %}
+        <div class="slide{% if loop.first %} active{% endif %}">
+            <img src="{{ url_for('static', filename='uploads/' + photo.image) }}">
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="slide active">
+            <div class="no-photo">Belum ada foto 📷</div>
+        </div>
+        {% endif %}
+        <button class="nav prev" onclick="changeSlide(-1)">❮</button>
+        <button class="nav next" onclick="changeSlide(1)">❯</button>
+    </div>
+    
+    <div class="hero">
+        <h1>Hai Reni ❤️</h1>
+        <p>Ini semua tentang kita</p>
+        <div class="counter">
+            <span class="days">{{ love_days }}</span>
+            <span class="label">hari bersamamu</span>
+        </div>
+    </div>
+    
+    <div class="menu">
+        <a href="/letter" class="menu-card">
+            <span class="icon">💌</span>
+            <span>Surat Cinta</span>
+        </a>
+        <button class="menu-card" id="randomBtn">
+            <span class="icon">🎁</span>
+            <span>Kenangan Random</span>
+        </button>
+        <button class="menu-card" id="quizBtn">
+            <span class="icon">💭</span>
+            <span>Quiz</span>
+        </button>
+    </div>
+    
+    <div class="chat-section" id="chat">
+        <h2>💬 Awal Cerita Kita</h2>
+        <div class="chat-box">
+            {% for chat in chat_history %}
+            <div class="message {{ 'sent' if chat.sender == 'aku' else 'received' }}">
+                <span>{{ chat.text }}</span>
+                <small>{{ chat.time }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="locations-section" id="locations">
+        <h2>📍 Tempat Kenangan</h2>
+        <div class="locations">
+            {% for loc in locations %}
+            <div class="location-card">
+                <span class="emoji">{{ loc.emoji }}</span>
+                <h3>{{ loc.name }}</h3>
+                {% if loc.cafe %}<p>{{ loc.cafe }}</p>{% endif %}
+                <p>{{ loc.desc }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="gallery-section" id="gallery">
+        <h2>📸 Galeri Kenangan</h2>
+        <div class="gallery">
+            {% for photo in photos %}
+            <div class="gallery-item">
+                <img src="{{ url_for('static', filename='uploads/' + photo.image) }}">
+                {% if photo.caption %}<p>{{ photo.caption }}</p>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <footer>
+        <a href="/admin">Admin</a>
+        <a href="/letter">Surat</a>
+        <a href="/logout">Logout</a>
+    </footer>
+    
+    <button class="secret-btn" id="secretBtn">✨</button>
+    
+    <div class="modal" id="randomModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('randomModal')">×</span>
+            <img id="randomImg">
+            <p id="randomCaption"></p>
+        </div>
+    </div>
+    
+    <div class="modal" id="quizModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('quizModal')">×</span>
+            <h3>💭 Quiz</h3>
+            <p>Siapakah aku?</p>
+            <div class="options">
+                <button>Ubed</button>
+                <button>Jono</button>
+                <button>Budi</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="secretModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('secretModal')">×</span>
+            <p id="secretMsg"></p>
+        </div>
+    </div>
+    
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        
+        function showSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            slides[index].classList.add('active');
+        }
+        
+        function changeSlide(n) {
+            slideIndex = (slideIndex + n + slides.length) % slides.length;
+            showSlide(slideIndex);
+        }
+        
+        if (slides.length > 1) {
+            setInterval(() => changeSlide(1), 5000);
+        }
+        
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        
+        document.getElementById('randomBtn').addEventListener('click', () => {
+            fetch('/random-memory')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('randomImg').src = '/static/uploads/' + data.image;
+                        document.getElementById('randomCaption').textContent = data.caption || '';
+                        openModal('randomModal');
+                    }
+                });
+        });
+        
+        document.getElementById('quizBtn').addEventListener('click', () => {
+            openModal('quizModal');
+        });
+        
+        document.getElementById('secretBtn').addEventListener('click', () => {
+            fetch('/secret')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('secretMsg').textContent = data.message;
+                    openModal('secretModal');
+                });
+        });
+    </script>
+</body>
+</html>
